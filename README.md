@@ -1,3 +1,7 @@
+[![License: MIT](https://img.shields.io/github/license/CribberSix/nifi-airflow-connection?style=flat-square)](https://github.com/CribberSix/nifi-airflow-connection/blob/main/LICENSE)
+
+
+
 # Repository
 
 This repository was created for the article [Interconnecting Airflow with NiFi processes](https://cribbersix.github.io/python/2021/10/14/Airflow-to-NiFi-and-back.html) on October 24th, 2021.
