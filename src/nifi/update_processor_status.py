@@ -13,21 +13,18 @@ def update_processor_status(processor_id:str, new_state:str ='STOPPED', token, u
   :param url_nifi_api: URL to the NiFi API
   :return: None
   """  
-  # Create header with access token
-  header =  {
-              'Content-Type':'application/json'
-            , 'Authorization': 'Bearer {}'.format(token)
-            }
 
-  # GET processor and parse to JSON
-  response = requests.get(url_nifi_api + f'/processors/{processor_id}', headers=header)
-  processor = json.loads(response.content)
-  # You could potentially check here if the current state is already 
-  # the desired one and return early.
+  # Retrieve processor from `/processors/{processor_id}`
+  processor = get_processor(url_nifi_api, processor_id, token)
 
-  # Create a JSON with the new state
-  put_dict = {"revision": processor['revision'], "state": new_state, "disconnectedNodeAcknowledged": True}
+  # Create a JSON with the new state and the processor's revision
+  put_dict = {
+                  "revision": processor['revision']
+                , "state": new_state
+                , "disconnectedNodeAcknowledged": True
+              }
 
   # Dump JSON and POST processor
   payload = json.dumps(put_dict).encode('utf8')
+  header =  {'Content-Type':'application/json', 'Authorization': 'Bearer {}'.format(token)}
   response = requests.put(url_nifi_api + f'/processors/{processor_id}/run-status', headers=header, data=payload)
