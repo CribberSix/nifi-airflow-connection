@@ -1,34 +1,32 @@
 
-
-
 from src.nifi.get_token import get_token
 from src.nifi.update_processor_status import update_processor_status
+from src.nifi.get_processor_state import get_processor_state
+
+from src.utils.parse_state import parse_state
+from src.utils.pause import pause
 
 
-def startup_task():
-  """DAG task."""
-          
-  # Initialize the following variables according to your setup / needs:
-  url_nifi_api = "https://your.cluster.address.com:9443/nifi-api/"
-  processor_id = ""  # e.g. hardcoded / pass them via the `provide_context` functionality
-  access_payload = "" # e.g. retrieve via Airflow's `BaseHook` functionality
+def startup_task():          
+    # Initialize the following variables according to your setup / needs:
+    url_nifi_api = "https://your.cluster.address.com:9443/nifi-api/"
+    processor_id = ""  # e.g. hardcoded / pass them via the `provide_context` functionality
+    access_payload = "" # e.g. retrieve via Airflow's `BaseHook` functionality
 
-  token = get_token(url_nifi_api, access_payload)
-  update_processor_status(processor_id, "RUNNING", token, url_nifi_api)
-  pause(60)
-  update_processor_status(processor_id, "STOPPED", token, url_nifi_api)
+    token = get_token(url_nifi_api, access_payload)
+    update_processor_status(processor_id, "RUNNING", token, url_nifi_api)
+    pause(60)
+    update_processor_status(processor_id, "STOPPED", token, url_nifi_api)
 
 
 def wait_for_update():
-  """DAG task."""
+    # Initialize the following variables according to your setup / needs:
+    url_nifi_api = ""  
+    processor_id = ""  # e.g. pass them via the DAG's `provide_context` functionality
+    access_payload = "" # e.g. retrieve the via Airflow's `BaseHook` functionality
+    timestamp_property= "last_tms"
 
-  # Initialize the following variables according to your setup / needs:
-  url_nifi_api = ""  
-  processor_id = ""  # e.g. pass them via the DAG's `provide_context` functionality
-  access_payload = "" # e.g. retrieve the via Airflow's `BaseHook` functionality
-  timestamp_property= "last_tms"
-
-  token = get_token(url_nifi_api, access_payload)
+    token = get_token(url_nifi_api, access_payload)
 
     t0 = datetime.now()
 
@@ -40,10 +38,8 @@ def wait_for_update():
     # query and wait until an update happens or we time out. 
     not_yet_updated = True
     while True:
-    
         processor_state = get_processor_state(url_nifi_api, processor_id, token=token)
         value_current = parse_state(processor_state, timestamp_property )
-        time_current = convert_to_full_date_today(value_current)
 
         if time_start == time_current:
             print("Waiting...")
@@ -72,7 +68,7 @@ with DAG(
     )
     startup = PythonOperator(
         task_id='startup',
-        python_callable=startup_task,
+        python_callable=start_nifi,
     )
 
     waiting_task = PythonOperator(
