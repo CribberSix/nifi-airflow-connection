@@ -34,7 +34,7 @@ def update_processor_status(processor_id: str, new_state: str, token, url_nifi_a
         "Authorization": "Bearer {}".format(token),
     }
     response = requests.put(
-        url_nifi_api + f"/processors/{processor_id}/run-status",
+        url_nifi_api + f"processors/{processor_id}/run-status",
         headers=header,
         data=payload,
     )

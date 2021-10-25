@@ -15,7 +15,7 @@ def prepare():
     pass
 
 
-def startup_task():
+def startup():
     # Initialize the following variables according to your setup / needs:
     url_nifi_api = "https://your.cluster.address.com:9443/nifi-api/"
     processor_id = (
@@ -36,7 +36,7 @@ def startup_task():
 
 def wait_for_update():
     # Initialize the following variables according to your setup / needs:
-    url_nifi_api = ""
+    url_nifi_api = "https://your.cluster.address.com:9443/nifi-api/"
     processor_id = ""  # e.g. pass them via the DAG's `provide_context` functionality
     access_payload = ""  # e.g. retrieve the via Airflow's `BaseHook` functionality
     timestamp_property = "last_tms"  # the processor's attribute name
@@ -54,7 +54,7 @@ def wait_for_update():
 
         if value_start == value_current:
             print("Waiting...")
-            pause(10)
+            pause(60)
         else:
             print(f"Update found: {value_current}")
             break
@@ -75,9 +75,9 @@ with DAG(
         task_id="preparation",
         python_callable=prepare,
     )
-    startup = PythonOperator(
-        task_id="startup",
-        python_callable=startup_task,
+    startup_task = PythonOperator(
+        task_id="startup_task",
+        python_callable=startup,
     )
 
     waiting_task = PythonOperator(
@@ -89,4 +89,4 @@ with DAG(
         task_id="finalization",
         python_callable=finalize,
     )
-    preparation >> startup >> waiting_task >> finalization
+    preparation >> startup_task >> waiting_task >> finalization

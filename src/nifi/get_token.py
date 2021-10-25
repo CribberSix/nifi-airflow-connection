@@ -18,6 +18,6 @@ def get_token(url_nifi_api: str, access_payload: dict):
         "Accept": "*/*",
     }
     response = requests.post(
-        url_nifi_api + "/access/token", headers=header, data=access_payload
+        url_nifi_api + "access/token", headers=header, data=access_payload
     )
     return response.content.decode("ascii")
